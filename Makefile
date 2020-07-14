@@ -1,5 +1,6 @@
 TARGET ?= spm
 SRC_DIRS ?= ./src
+CC ?= cc
 
 SRCS := $(shell find $(SRC_DIRS) -name *.c)
 OBJS := $(addsuffix .o,$(basename $(SRCS)))

@@ -13,21 +13,20 @@ cJSON *get_json() {
     size_t file_size = 0;
 
     if (!(json_file = fopen(PASSWORD_FILE, "r"))) {
-        json_string = (char *)malloc(sizeof(char) * 3);
-        strcpy(json_string, "[]");
+        json = cJSON_Parse("[]");
     } else {
         fseek(json_file, 0, SEEK_END);
         file_size = ftell(json_file);
-        json_string = (char *)malloc(sizeof(char) * file_size);
+        json_string = (char *)malloc(sizeof(char) * (file_size));
 
         rewind(json_file);
-        fgets(json_string, file_size, json_file);
+        fgets(json_string, file_size + 1, json_file);
+
+        json = cJSON_Parse(json_string);
+
+        free(json_string);
         fclose(json_file);
     }
-
-    json = cJSON_Parse(json_string);
-
-    free(json_string);
 
     return json;
 }

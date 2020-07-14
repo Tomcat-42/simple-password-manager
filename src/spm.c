@@ -6,10 +6,8 @@
 #include <time.h>
 
 #include "./lib/cJSON/cJSON.h"
-#include "./lib/file_io/file_io.h"
+#include "./lib/manager/manager.h"
 
 int main(int argc, char **argv) {
-    cJSON *json = cJSON_Parse("[{\"um\":\"1\"}]");
-
-    save_json(json);
+    printf("%s\n", service_list());
 }

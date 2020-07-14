@@ -16,5 +16,4 @@ cJSON *get_json();
 
 int save_json(cJSON *json);
 
-
 #endif /* FILE_IO_H */
