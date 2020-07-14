@@ -18,14 +18,8 @@ typedef struct {
  * Converts a service login, password and other information
  * to a Service struct
  */
-Service *service_structify(char *name, char *login, char *password,
-                           char *other);
-
-/*
- * Parse a Service struct to a array containing:
- * login, password and other information
- */
-char **service_parse(Service *service);
+Service *service_structify(const char *name, const char *login,
+                           const char *password, const char *other);
 
 /*
  * Insert a service. If exists a service with the same name update the fields
@@ -46,6 +40,5 @@ char *service_list();
  * Delete a service by name.
  */
 int service_delete(const char *name);
-
 
 #endif /* MANAGER_H */

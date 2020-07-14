@@ -12,8 +12,14 @@
 
 #include "../cJSON/cJSON.h"
 
+/*
+ * Get the json from file
+ */
 cJSON *get_json();
 
+/*
+ * Save the json to file
+ */
 int save_json(cJSON *json);
 
 #endif /* FILE_IO_H */
