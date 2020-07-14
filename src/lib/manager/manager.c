@@ -63,8 +63,6 @@ int service_upsert(Service *service) {
     save_json(json_array);
 
     free(new_item);
-    free(item);
-    free(name);
 
     /* Zero means inserted and one updated */
     return updated;
@@ -107,8 +105,6 @@ char *service_show(const char *name) {
     }
 
     free(json_array);
-    free(item);
-    free(tgt_name);
 
     return ret_string;
 }
