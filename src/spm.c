@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "./lib/cJSON/cJSON.h"
+#include "./lib/file_io/file_io.h"
 #include "./lib/manager/manager.h"
 
 int add(const char *name, const char *login, const char *password,
@@ -89,6 +90,7 @@ int delete (const char *name) {
 
 int help() {
     printf(
+        "Simple password manager\n\n"
         "Add a service:\n"
         "    spm -a|--add name login [password] [other]\n"
         "Show a service:\n"

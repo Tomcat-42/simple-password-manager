@@ -1,1 +1,2 @@
-static const char *PASSWORD_FILE = "/home/pablo951_br/pw.json";
+#define PASSWORD_FILE ""
+#define GPG_RECIPIENT ""
