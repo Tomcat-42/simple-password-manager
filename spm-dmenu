@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+if ! command -v dmenu gpg xsel &>/dev/null; then
+    echo "dmenu, gpg or xsel not found"
+    exit 1
+fi
+
+function get() {
+    while IFS= read -r LINE; do
+        SERVICES+=("${LINE%% *}")
+    done <<<"$(spm -l)"
+
+    SERVICE="$(printf "%s\n" "${SERVICES[@]}" | dmenu -l 3 -p "$PROMPT")"
+
+    [[ $SERVICE ]] && {
+        SERVICE_DATA="$(spm -s "${SERVICE}")"
+        WHICH="$(printf "$LOGIN\n$PASSWORD\n$OTHER\n All" | dmenu -l 4 -p "$PROMPT")"
+    }
+
+    if [[ $SERVICE ]] && [[ $WHICH ]]; then
+        case "$WHICH" in
+        "$LOGIN")
+            echo "$SERVICE_DATA" | awk '{print $2}' | xsel -i -b
+            notify-send "${SERVICE} Login copied to clipboard"
+            ;;
+        "$PASSWORD")
+            echo "$SERVICE_DATA" | awk '{print $3}' | xsel -i -b
+            notify-send "${SERVICE} Password copied to clipboard"
+            ;;
+        "$OTHER")
+            echo "$SERVICE_DATA" | awk '{print $4}' | xsel -i -b
+            notify-send "${SERVICE} Other copied to clipboard"
+            ;;
+        " All")
+            echo "$SERVICE_DATA" | awk '{print $0}' | xsel -i -b
+            notify-send "All data from ${SERVICE} copied to clipboard"
+            ;;
+        esac
+    fi
+
+}
+
+function add() {
+    NEW_NAME="$(dmenu -p "$NAME" <&-)"
+
+    [[ $NEW_NAME ]] && {
+        NEW_LOGIN="$(dmenu -p "$LOGIN" <&-)"
+    }
+
+    if [[ $NEW_NAME ]] && [[ $NEW_LOGIN ]]; then
+        NEW_PASSWORD="$(dmenu -nf "#b71c1c" -nb "#b71c1c" -p "$PASSWORD" <&-)"
+        NEW_OTHER="$(dmenu -p "$OTHER" <&-)"
+        spm -a "$NEW_NAME" "$NEW_LOGIN" "$NEW_PASSWORD" "$NEW_OTHER"
+        notify-send "${NEW_NAME} entry added"
+    fi
+}
+
+function del() {
+    while IFS= read -r LINE; do
+        SERVICES+=("${LINE%% *}")
+    done <<<"$(spm -l)"
+
+    SERVICE="$(printf "%s\n" "${SERVICES[@]}" | dmenu -l 3 -p "$PROMPT")"
+    RET="$(spm -d "${SERVICE}")"
+
+    if [[ $RET != 0 ]] && [[ $SERVICE ]]; then
+        notify-send "${SERVICE} entry deleted"
+    fi
+}
+
+PROMPT=" spm"
+GET_SERVICE=" Get user/password"
+ADD_SERVICE="+ Add a service"
+DEL_SERVICE="- Delete a service"
+NAME=" Name"
+LOGIN=" Login"
+PASSWORD=" Password"
+OTHER=" Other"
+
+declare -a SERVICES
+
+CHOICE1=$(printf "$GET_SERVICE\n$ADD_SERVICE\n$DEL_SERVICE" | dmenu -l 3 -p "$PROMPT")
+
+case "$CHOICE1" in
+"$GET_SERVICE")
+    get
+    ;;
+"$ADD_SERVICE")
+    add
+    ;;
+"$DEL_SERVICE")
+    del
+    ;;
+esac
