@@ -7,7 +7,8 @@ fi
 
 function get() {
     while IFS= read -r LINE; do
-        SERVICES+=("${LINE%% *}")
+        eval "TMP_ARRAY=($LINE)"
+        SERVICES+=("${TMP_ARRAY[0]}")
     done <<<"$(spm -l)"
 
     SERVICE="$(printf "%s\n" "${SERVICES[@]}" | dmenu -l 3 -p "$PROMPT")"
@@ -18,21 +19,23 @@ function get() {
     }
 
     if [[ $SERVICE ]] && [[ $WHICH ]]; then
+        eval "SERVICE_ARRAY=($SERVICE_DATA)"
+
         case "$WHICH" in
         "$LOGIN")
-            echo "$SERVICE_DATA" | awk '{print $2}' | xsel -i -b
+            xsel -i -b <<<"${SERVICE_ARRAY[1]}"
             notify-send "${SERVICE} Login copied to clipboard"
             ;;
         "$PASSWORD")
-            echo "$SERVICE_DATA" | awk '{print $3}' | xsel -i -b
+            xsel -i -b <<<"${SERVICE_ARRAY[2]}"
             notify-send "${SERVICE} Password copied to clipboard"
             ;;
         "$OTHER")
-            echo "$SERVICE_DATA" | awk '{print $4}' | xsel -i -b
+            xsel -i -b <<<"${SERVICE_ARRAY[3]}"
             notify-send "${SERVICE} Other copied to clipboard"
             ;;
         " All")
-            echo "$SERVICE_DATA" | awk '{print $0}' | xsel -i -b
+            xsel -i -b <<<"${SERVICE_ARRAY[@]}"
             notify-send "All data from ${SERVICE} copied to clipboard"
             ;;
         esac
@@ -57,13 +60,14 @@ function add() {
 
 function del() {
     while IFS= read -r LINE; do
-        SERVICES+=("${LINE%% *}")
+        eval "TMP_ARRAY=($LINE)"
+        SERVICES+=("${TMP_ARRAY[0]}")
     done <<<"$(spm -l)"
 
     SERVICE="$(printf "%s\n" "${SERVICES[@]}" | dmenu -l 3 -p "$PROMPT")"
-    RET="$(spm -d "${SERVICE}")"
 
-    if [[ $RET != 0 ]] && [[ $SERVICE ]]; then
+    if [[ $SERVICE ]]; then
+        spm -d "${SERVICE}"
         notify-send "${SERVICE} entry deleted"
     fi
 }

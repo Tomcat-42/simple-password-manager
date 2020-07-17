@@ -25,19 +25,19 @@ int show(const char *name) {
 
         item = cJSON_GetObjectItem(json_obj, "name");
         tmp_string = cJSON_GetStringValue(item);
-        printf("%s ", tmp_string);
+        printf("'%s' ", tmp_string);
 
         item = cJSON_GetObjectItem(json_obj, "login");
         tmp_string = cJSON_GetStringValue(item);
-        printf("%s ", tmp_string);
+        printf("'%s' ", tmp_string);
 
         item = cJSON_GetObjectItem(json_obj, "password");
         tmp_string = cJSON_GetStringValue(item);
-        printf("%s ", tmp_string);
+        printf("'%s' ", tmp_string);
 
         item = cJSON_GetObjectItem(json_obj, "other");
         tmp_string = cJSON_GetStringValue(item);
-        printf("%s\n", tmp_string);
+        printf("'%s'\n", tmp_string);
 
         free(json_obj);
         free(json_string);
@@ -61,19 +61,19 @@ int list() {
     for (it = json_array->child; it != NULL; it = it->next) {
         item = cJSON_GetObjectItem(it, "name");
         tmp_string = cJSON_GetStringValue(item);
-        printf("%s ", tmp_string);
+        printf("'%s' ", tmp_string);
 
         item = cJSON_GetObjectItem(it, "login");
         tmp_string = cJSON_GetStringValue(item);
-        printf("%s ", tmp_string);
+        printf("'%s' ", tmp_string);
 
         item = cJSON_GetObjectItem(it, "password");
         tmp_string = cJSON_GetStringValue(item);
-        printf("%s ", tmp_string);
+        printf("'%s' ", tmp_string);
 
         item = cJSON_GetObjectItem(it, "other");
         tmp_string = cJSON_GetStringValue(item);
-        printf("%s\n", tmp_string);
+        printf("'%s'\n", tmp_string);
     }
 
     free(json_array);
