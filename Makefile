@@ -1,7 +1,7 @@
 include config.mk
 
 TARGET ?= spm
-SCRIPT ?= spm-dmenu
+SCRIPT ?= spm-*
 SRC_DIRS ?= ./src
 
 SRCS := $(shell find $(SRC_DIRS) -name *.c)

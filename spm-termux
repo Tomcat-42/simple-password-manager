@@ -1,0 +1,98 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+if ! command -v termux-clipboard-get termux-clipboard-set gpg termux-dialog &>/dev/null; then
+    echo "termux-api commands not found"
+    exit 1
+fi
+
+function get() {
+    while IFS= read -r LINE; do
+        eval "TMP_ARRAY=($LINE)"
+        SERVICES+=("${TMP_ARRAY[0]}")
+    done <<<"$(spm -l)"
+
+    SERVICE="$(printf "%s\n" "${SERVICES[@]}" | choose_termux "$PROMPT")"
+
+    [[ $SERVICE ]] && {
+        SERVICE_DATA="$(spm -s "${SERVICE}")"
+        WHICH="$(printf "$LOGIN\n$PASSWORD\n$OTHER\nAll" | choose_termux "$PROMPT")"
+    }
+
+    if [[ $SERVICE ]] && [[ $WHICH ]]; then
+        eval "SERVICE_ARRAY=($SERVICE_DATA)"
+
+        case "$WHICH" in
+        "$LOGIN")
+            termux-clipboard-set "${SERVICE_ARRAY[1]}"
+            termux-notification -t spm -c "${SERVICE} Login copied to clipboard"
+            ;;
+        "$PASSWORD")
+            termux-clipboard-set "${SERVICE_ARRAY[2]}"
+            termux-notification -t spm -c "${SERVICE} Password copied to clipboard"
+            ;;
+        "$OTHER")
+            termux-clipboard-set "${SERVICE_ARRAY[3]}"
+            termux-notification -t spm -c "${SERVICE} Other copied to clipboard"
+            ;;
+        "All")
+            termux-clipboard-set "${SERVICE_ARRAY[@]}"
+            termux-notification -t spm -c "All data from ${SERVICE} copied to clipboard"
+            ;;
+        esac
+    fi
+
+}
+
+function add() {
+    NEW_NAME="$(input_termux "$NAME")"
+
+    [[ $NEW_NAME ]] && {
+        NEW_LOGIN="$(input_termux "$LOGIN")"
+    }
+
+    if [[ $NEW_NAME ]] && [[ $NEW_LOGIN ]]; then
+        NEW_PASSWORD="$(password_termux "$PASSWORD")"
+        NEW_OTHER="$(input_termux "$OTHER")"
+        spm -a "$NEW_NAME" "$NEW_LOGIN" "$NEW_PASSWORD" "$NEW_OTHER"
+        termux-notification -t spm -c "${NEW_NAME} entry added"
+    fi
+}
+
+function del() {
+    while IFS= read -r LINE; do
+        eval "TMP_ARRAY=($LINE)"
+        SERVICES+=("${TMP_ARRAY[0]}")
+    done <<<"$(spm -l)"
+
+    SERVICE="$(printf "%s\n" "${SERVICES[@]}" | choose_termux "$PROMPT")"
+
+    if [[ $SERVICE ]]; then
+        spm -d "${SERVICE}"
+        termux-notification -t spm -c "${SERVICE} entry deleted"
+    fi
+}
+
+PROMPT="spm"
+GET_SERVICE="Get user/password"
+ADD_SERVICE="Add a service"
+DEL_SERVICE="Delete a service"
+NAME="Name"
+LOGIN="Login"
+PASSWORD="Password"
+OTHER="Other"
+
+declare -a SERVICES
+
+CHOICE1=$(printf "$GET_SERVICE\n$ADD_SERVICE\n$DEL_SERVICE" | choose_termux "$PROMPT")
+
+case "$CHOICE1" in
+"$GET_SERVICE")
+    get
+    ;;
+"$ADD_SERVICE")
+    add
+    ;;
+"$DEL_SERVICE")
+    del
+    ;;
+esac

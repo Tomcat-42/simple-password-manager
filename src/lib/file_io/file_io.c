@@ -28,7 +28,7 @@ cJSON *get_json() {
         /* Read char by char the popen pipe */
         size = 1;
         json_string = (char *)malloc(sizeof(char));
-        while ((ch = fgetc(json_file)) != EOF) {
+        while ((ch = fgetc(json_file)) != EOF && ch != 255) {
             json_string[size - 1] = ch;
             json_string =
                 (char *)realloc(json_string, sizeof(char) * (size + 1));
