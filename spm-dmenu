@@ -44,15 +44,15 @@ function get() {
 }
 
 function add() {
-    NEW_NAME="$(dmenu -p "$NAME" <&-)"
+    NEW_NAME="$(echo ""| dmenu -p "$NAME")"
 
     [[ $NEW_NAME ]] && {
-        NEW_LOGIN="$(dmenu -p "$LOGIN" <&-)"
+        NEW_LOGIN="$(echo ""| dmenu -p "$LOGIN")"
     }
 
     if [[ $NEW_NAME ]] && [[ $NEW_LOGIN ]]; then
-        NEW_PASSWORD="$(dmenu -nf "#b71c1c" -nb "#b71c1c" -p "$PASSWORD" <&-)"
-        NEW_OTHER="$(dmenu -p "$OTHER" <&-)"
+        NEW_PASSWORD="$(echo ""| dmenu -nf "#b71c1c" -nb "#b71c1c" -p "$PASSWORD")"
+        NEW_OTHER="$(echo ""| dmenu -p "$OTHER")"
         spm -a "$NEW_NAME" "$NEW_LOGIN" "$NEW_PASSWORD" "$NEW_OTHER"
         notify-send "${NEW_NAME} entry added"
     fi
