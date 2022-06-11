@@ -12,6 +12,14 @@ cJSON *get_json() {
     char *json_string = NULL, ch;
     int file_exists = 0, size;
 
+    // FILE *whoami = NULL;
+    // whoami = popen("gpg --version", "r");
+    // while ((ch = fgetc(whoami)) != EOF && ch != 255) {
+    //     putchar(ch);
+    // }
+    // putchar('\n');
+
+
     /*
      * Check if the gpg encrypted file exists
      * via shell command
