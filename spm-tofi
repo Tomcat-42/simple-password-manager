@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+if ! command -v tofi gpg wl-copy &>/dev/null; then
+    echo "dmenu, gpg or xsel not found"
+    exit 1
+fi
+
+function get() {
+    while IFS= read -r LINE; do
+        eval "TMP_ARRAY=($LINE)"
+        SERVICES+=("${TMP_ARRAY[0]}")
+    done <<<"$(spm -l)"
+
+    SERVICE="$(printf "%s\n" "${SERVICES[@]}" | tofi --prompt-text "$PROMPT")"
+
+    [[ $SERVICE ]] && {
+        SERVICE_DATA="$(spm -s "${SERVICE}")"
+        WHICH="$(printf "$LOGIN\n$PASSWORD\n$OTHER\n All" | tofi --prompt-text "$PROMPT")"
+    }
+
+    if [[ $SERVICE ]] && [[ $WHICH ]]; then
+        eval "SERVICE_ARRAY=($SERVICE_DATA)"
+
+        case "$WHICH" in
+        "$LOGIN")
+            wl-copy <<<"${SERVICE_ARRAY[1]}"
+            notify-send "${SERVICE} Login copied to clipboard"
+            ;;
+        "$PASSWORD")
+            wl-copy <<<"${SERVICE_ARRAY[2]}"
+            notify-send "${SERVICE} Password copied to clipboard"
+            ;;
+        "$OTHER")
+            wl-copy <<<"${SERVICE_ARRAY[3]}"
+            notify-send "${SERVICE} Other copied to clipboard"
+            ;;
+        " All")
+            wl-copy <<<"${SERVICE_ARRAY[@]}"
+            notify-send "All data from ${SERVICE} copied to clipboard"
+            ;;
+        esac
+    fi
+
+}
+
+function add() {
+    NEW_NAME="$(echo ""| tofi --prompt-text "$NAME")"
+
+    [[ $NEW_NAME ]] && {
+        NEW_LOGIN="$(echo ""| tofi --prompt-text "$LOGIN")"
+    }
+
+    if [[ $NEW_NAME ]] && [[ $NEW_LOGIN ]]; then
+        NEW_PASSWORD="$(echo ""| tofi --prompt-text "$PASSWORD")"
+        NEW_OTHER="$(echo ""| tofi --prompt-text "$OTHER")"
+        spm -a "$NEW_NAME" "$NEW_LOGIN" "$NEW_PASSWORD" "$NEW_OTHER"
+        notify-send "${NEW_NAME} entry added"
+    fi
+}
+
+function del() {
+    while IFS= read -r LINE; do
+        eval "TMP_ARRAY=($LINE)"
+        SERVICES+=("${TMP_ARRAY[0]}")
+    done <<<"$(spm -l)"
+
+    SERVICE="$(printf "%s\n" "${SERVICES[@]}" | tofi --prompt-text "$PROMPT")"
+
+    if [[ $SERVICE ]]; then
+        spm -d "${SERVICE}"
+        notify-send "${SERVICE} entry deleted"
+    fi
+}
+
+PROMPT=" spm "
+GET_SERVICE=" Get user/password "
+ADD_SERVICE="+ Add a service "
+DEL_SERVICE="- Delete a service "
+NAME=" Name "
+LOGIN=" Login "
+PASSWORD=" Password "
+OTHER=" Other "
+
+declare -a SERVICES
+
+CHOICE1=$(printf "$GET_SERVICE\n$ADD_SERVICE\n$DEL_SERVICE" | tofi --prompt-text "$PROMPT")
+
+case "$CHOICE1" in
+"$GET_SERVICE")
+    get
+    ;;
+"$ADD_SERVICE")
+    add
+    ;;
+"$DEL_SERVICE")
+    del
+    ;;
+esac
